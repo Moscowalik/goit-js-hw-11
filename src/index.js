@@ -1,54 +1,54 @@
 import './sass/main.scss';
-import { fetchPictures } from './fetchPictures';
+import { getPicturesByName } from './fetchPictures';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const searchInputRef = document.querySelector('[ name="searchQuery"]');
+const buttonRef = document.querySelector('[type="submit"]');
 const picturesBoxRef = document.querySelector('.gallery');
+
 let searchQuery = '';
 
-searchInputRef.addEventListener('input', onSearch);
+buttonRef.addEventListener('click', onSearch);
 
 function onSearch(e) {
-  const name = searchInputRef.value.trim();
+  const { name } = e;
 
-  fetchPictures(query)
-    .then(pictures => {
-      picturesBoxRef.insertAdjacentHTML('beforeend', renderPicturesList(pictures));
-    })
-    .catch(alertWrongName);
+  getPicturesByName(name)
+    .then(pictures => pictures.json())
+    .then(console.log);
 }
 
-function renderPicturesList(pictures) {
-  const markup = pictures
-    .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-      return `
-            <div class="photo-card">
-  <img src="" alt="" loading="lazy" />
-  <div class="info">
-    <p class="info-item">
-      <b>Likes</b>
-    </p>
-    <p class="info-item">
-      <b>Views</b>
-    </p>
-    <p class="info-item">
-      <b>Comments</b>
-    </p>
-    <p class="info-item">
-      <b>Downloads</b>
-    </p>
-  </div>
-</div>
-            `;
-    })
-    .join('');
-  return markup;
-}
+// function renderPicturesList(pictures) {
+//   const markup = pictures
+//     .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+//       return `
+//             <div class="photo-card">
+//   <img src="" alt="" loading="lazy" />
+//   <div class="info">
+//     <p class="info-item">
+//       <b>Likes</b>
+//     </p>
+//     <p class="info-item">
+//       <b>Views</b>
+//     </p>
+//     <p class="info-item">
+//       <b>Comments</b>
+//     </p>
+//     <p class="info-item">
+//       <b>Downloads</b>
+//     </p>
+//   </div>
+// </div>
+//             `;
+//     })
+//     .join('');
+//   return markup;
+// }
 
 function alertWrongName() {
   Notify.failure('Oops, there is no country with that name');
 }
 
-function alertTooManyMatches() {
-  Notify.info('Too many matches found. Please enter a more specific name.');
-}
+// function alertTooManyMatches() {
+//   Notify.info('Too many matches found. Please enter a more specific name.');
+// }

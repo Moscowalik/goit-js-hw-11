@@ -52,6 +52,7 @@ function onSearchHandler(e) {
       clearHits();
       appendHitsMarkup(hits);
       loadMoreIsVisible();
+      lightbox.refresh();
       endOfSearchResultNotify();
     });
 }

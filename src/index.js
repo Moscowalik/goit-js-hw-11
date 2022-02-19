@@ -1,54 +1,92 @@
-import './sass/main.scss';
-import { getPicturesByName } from './fetchPictures';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import './css/style.css';
+import ApiSettings from './ApiSettings';
+import { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import articleTmpl from './article.hbs';
 
-const searchInputRef = document.querySelector('[ name="searchQuery"]');
-const buttonRef = document.querySelector('[type="submit"]');
-const picturesBoxRef = document.querySelector('.gallery');
+const searchForm = document.querySelector('.search-form');
+const loadMore = document.querySelector('.load-more');
+const gallerySelector = document.querySelector('.gallery');
+const pixabayApi = new ApiSettings();
 
-let searchQuery = '';
+var lightbox = new SimpleLightbox('.gallery a', {
+  captions: true,
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
-buttonRef.addEventListener('click', onSearch);
+searchForm.addEventListener('submit', onSearchHandler);
+loadMore.addEventListener('click', onLoadMoreHandler);
 
-function onSearch(e) {
-  const { name } = e;
+function onSearchHandler(e) {
+  e.preventDefault();
 
-  getPicturesByName(name)
-    .then(pictures => pictures.json())
-    .then(console.log);
+  const {
+    elements: { searchQuery },
+  } = e.target;
+
+  searchQuery.value.trim();
+
+  if (searchQuery.value === '') {
+    return Notify.failure('There is nothing to search!');
+  }
+
+  pixabayApi.query = searchQuery.value;
+  pixabayApi.resetPage();
+
+  pixabayApi
+    .fetchData()
+    .then(data => {
+      if (data.hits.length == 0) {
+        return Notify.failure(
+          `Sorry, there are no images matching your search query. Please try again`,
+        );
+      } else {
+        Notify.success(`Hooray! We found ${pixabayApi.hits} images.`);
+        return data.hits;
+      }
+    })
+    .then(hits => {
+      clearHits();
+      appendHitsMarkup(hits);
+      loadMoreIsVisible();
+      lightbox.refresh();
+      endOfSearchResultNotify();
+    });
 }
 
-// function renderPicturesList(pictures) {
-//   const markup = pictures
-//     .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-//       return `
-//             <div class="photo-card">
-//   <img src="" alt="" loading="lazy" />
-//   <div class="info">
-//     <p class="info-item">
-//       <b>Likes</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Views</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Comments</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Downloads</b>
-//     </p>
-//   </div>
-// </div>
-//             `;
-//     })
-//     .join('');
-//   return markup;
-// }
-
-function alertWrongName() {
-  Notify.failure('Oops, there is no country with that name');
+function onLoadMoreHandler() {
+  pixabayApi.fetchData().then(data => {
+    appendHitsMarkup(data.hits);
+    loadMoreIsVisible();
+    lightbox.refresh();
+    endOfSearchResultNotify();
+  });
 }
 
-// function alertTooManyMatches() {
-//   Notify.info('Too many matches found. Please enter a more specific name.');
-// }
+function appendHitsMarkup(hits) {
+  gallerySelector.insertAdjacentHTML('beforeend', articleTmpl(hits));
+}
+
+function clearHits() {
+  gallerySelector.innerHTML = '';
+}
+
+function loadMoreIsVisible() {
+  if (getPagesCount() > pixabayApi.page - 1) {
+    loadMore.classList.add('is-visible');
+  } else {
+    loadMore.classList.remove('is-visible');
+  }
+}
+
+function getPagesCount() {
+  return Math.ceil(pixabayApi.totalHits / pixabayApi.options.params.per_page);
+}
+
+function endOfSearchResultNotify() {
+  if (getPagesCount() === pixabayApi.page - 1) {
+    return Notify.failure("We're sorry, but you've reached the end of search results.");
+  }
+}

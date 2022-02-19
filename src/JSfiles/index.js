@@ -1,9 +1,9 @@
-import './css/style.css';
+import '../css/style.css';
 import ApiService from './APIsettings';
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import articleTmpl from './article.hbs';
+import articleTmpl from '../hbsfiles/article.hbs';
 
 const searchFormRef = document.querySelector('.search-form');
 const loadMoreBntRef = document.querySelector('.load-more');

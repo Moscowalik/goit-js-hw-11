@@ -5,19 +5,20 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import articleTmpl from './article.hbs';
 
-const searchForm = document.querySelector('.search-form');
-const loadMore = document.querySelector('.load-more');
-const gallerySelector = document.querySelector('.gallery');
+const searchFormRef = document.querySelector('.search-form');
+const loadMoreBntRef = document.querySelector('.load-more');
+const galleryRef = document.querySelector('.gallery');
 const pixabayApi = new ApiSettings();
 
 var lightbox = new SimpleLightbox('.gallery a', {
-  captions: true,
   captionsData: 'alt',
-  captionDelay: 250,
+  captionType: 'alt',
+  captionDelay: 200,
+  captionPosition: 'bottom',
 });
 
-searchForm.addEventListener('submit', onSearchHandler);
-loadMore.addEventListener('click', onLoadMoreHandler);
+searchFormRef.addEventListener('submit', onSearchHandler);
+loadMoreBntRef.addEventListener('click', onLoadMoreHandler);
 
 function onSearchHandler(e) {
   e.preventDefault();
@@ -51,7 +52,6 @@ function onSearchHandler(e) {
       clearHits();
       appendHitsMarkup(hits);
       loadMoreIsVisible();
-      lightbox.refresh();
       endOfSearchResultNotify();
     });
 }
@@ -60,25 +60,33 @@ function onLoadMoreHandler() {
   pixabayApi.fetchData().then(data => {
     appendHitsMarkup(data.hits);
     loadMoreIsVisible();
+    onPageScrolling();
     lightbox.refresh();
     endOfSearchResultNotify();
   });
 }
 
 function appendHitsMarkup(hits) {
-  gallerySelector.insertAdjacentHTML('beforeend', articleTmpl(hits));
+  galleryRef.insertAdjacentHTML('beforeend', articleTmpl(hits));
 }
 
 function clearHits() {
-  gallerySelector.innerHTML = '';
+  galleryRef.innerHTML = '';
 }
 
 function loadMoreIsVisible() {
   if (getPagesCount() > pixabayApi.page - 1) {
-    loadMore.classList.add('is-visible');
+    loadMoreBntRef.classList.add('is-visible');
   } else {
-    loadMore.classList.remove('is-visible');
+    loadMoreBntRef.classList.remove('is-visible');
   }
+}
+function onPageScrolling() {
+  const { height: cardHeight } = galleryRef.firstElementChild.getBoundingClientRect();
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
 
 function getPagesCount() {

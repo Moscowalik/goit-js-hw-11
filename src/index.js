@@ -1,5 +1,5 @@
 import './css/style.css';
-import ApiSettings from '/APISettings';
+import ApiService from '/APISettings';
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -8,7 +8,7 @@ import articleTmpl from './article.hbs';
 const searchFormRef = document.querySelector('.search-form');
 const loadMoreBntRef = document.querySelector('.load-more');
 const galleryRef = document.querySelector('.gallery');
-const pixabayApi = new ApiSettings();
+const pixabayApi = new ApiService();
 
 var lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',

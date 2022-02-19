@@ -1,5 +1,5 @@
 import './css/style.css';
-import ApiSettings from './APISettings';
+import ApiSettings from './APISettings.js';
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';

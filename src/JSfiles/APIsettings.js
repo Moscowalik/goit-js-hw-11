@@ -1,4 +1,4 @@
-const axios = require('axios').default;
+import axios from 'axios';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const KEY = '25354007-4da20173cd76d61434be87abf';
@@ -26,7 +26,7 @@ export default class ApiService {
 
     this.totalHits = total;
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       this.incrementPage();
     }
 

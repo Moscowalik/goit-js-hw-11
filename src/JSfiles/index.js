@@ -27,19 +27,19 @@ function onSearchHandler(e) {
     elements: { searchQuery },
   } = e.target;
 
-  searchQuery.value.trim();
-
   if (searchQuery.value === '') {
     return Notify.failure('There is nothing to search!');
   }
 
   pixabayApi.query = searchQuery.value;
   pixabayApi.resetPage();
-
+  takeApiData();
+}
+function takeApiData() {
   pixabayApi
     .fetchData()
     .then(data => {
-      if (data.hits.length == 0) {
+      if (data.hits.length === 0) {
         return Notify.failure(
           `Sorry, there are no images matching your search query. Please try again`,
         );
@@ -56,7 +56,6 @@ function onSearchHandler(e) {
       endOfSearchResultNotify();
     });
 }
-
 function onLoadMoreHandler() {
   pixabayApi.fetchData().then(data => {
     appendHitsMarkup(data.hits);
